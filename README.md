@@ -5,8 +5,11 @@ The goal is to reveal implementation of such aspects as
 - Service Discovery
 - API Discovery
 - Configuration
+- Authorization and authentication 
 - Logging, distributed tracing and metrics
 - Fault-tolerance patterns
+- Healthchecks
+- etc..
 
 ## Alternatives
 - [eShopOnContainers](https://github.com/dotnet-architecture/eShopOnContainers)
