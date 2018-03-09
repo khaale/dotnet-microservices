@@ -4,7 +4,7 @@ A reference implementation of .NET Core microservice for **on-premise Docker/Kub
 The goal is to reveal implementation of such aspects as 
 - Service Discovery
 - API Discovery
-- [Configuration](./docs/Configuration.md)
+- [Configuration](./docs/Configuration.md) and Secrets management
 - Authorization and authentication 
 - Logging, distributed tracing and metrics
 - Fault-tolerance patterns
