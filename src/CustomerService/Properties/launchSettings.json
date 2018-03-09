@@ -17,11 +17,13 @@
     },
     "CustomerService": {
       "commandName": "Project",
+      "commandLineArgs": "/CustomerOptions:Value3=\"from commandline args\"",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CUSTOMEROPTIONS__VALUE2": "from environment variables"
       },
-      "applicationUrl": "http://localhost:50669/"
+      "applicationUrl": "http://localhost:50669"
     }
   }
 }

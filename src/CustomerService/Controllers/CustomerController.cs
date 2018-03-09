@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using CustomerService.Model;
+using CustomerService.Options;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace CustomerService.Controllers
 {
@@ -16,6 +17,13 @@ namespace CustomerService.Controllers
             new Customer(2, "Customer 2")
         };
 
+        private readonly CustomerOptions _options;
+
+        public CustomerController(IOptionsSnapshot<CustomerOptions> options)
+        {
+            _options = options.Value;
+        }
+
         /// <summary>
         /// Gets a list of customers
         /// </summary>
@@ -26,6 +34,11 @@ namespace CustomerService.Controllers
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult Get()
         {
+            Log.Information("Options: {OptionKey} = {OptionValue}", nameof(_options.Value1), _options.Value1);
+            Log.Information("Options: {OptionKey} = {OptionValue}", nameof(_options.Value2), _options.Value2);
+            Log.Information("Options: {OptionKey} = {OptionValue}", nameof(_options.Value3), _options.Value3);
+            Log.Information("Options: {OptionKey} = {OptionValue}", nameof(_options.Value4), _options.Value4);
+
             return Ok(Customers);
         }
     }

@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using Winton.Extensions.Configuration.Consul;
 
 namespace CustomerService
 {
@@ -24,8 +20,15 @@ namespace CustomerService
                 .CreateLogger();
             try
             {
-                Log.Information("Starting web host");
-                BuildWebHost(args).Run();
+                // prepare configuration that will be used during startup and initialization
+                var builder = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .AddCommandLine(cs => cs.Args = args);
+                var initialConfiguration = builder.Build();
+
+                BuildWebHost(initialConfiguration).Run();
                 return 0;
             }
             catch (Exception ex)
@@ -39,8 +42,10 @@ namespace CustomerService
             }
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static IWebHost BuildWebHost(IConfiguration configuration) =>
+            new WebHostBuilder()
+                .UseKestrel()
+                .UseConfiguration(configuration)
                 .UseStartup<Startup>()
                 .UseSerilog()
                 .Build();

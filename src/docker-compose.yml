@@ -1,8 +1,15 @@
 version: '3'
 
 services:
+  consul:
+    image: consul
+    ports:
+      - "8500"
+      - "8600"
   customerservice:
     image: customerservice
+    depends_on:
+      - "consul"
     build:
       context: .
       dockerfile: CustomerService/Dockerfile

@@ -5,5 +5,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
+      - CUSTOMEROPTIONS__VALUE2=from environment variable
     ports:
       - "8080"
+    command: --CustomerOptions:Value3="from commandline args"
