@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using CustomerService.Core.Api;
 using CustomerService.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
@@ -39,7 +41,7 @@ namespace CustomerService
                         options.ReloadOnChange = true;
                         options.OnLoadException = exceptionContext =>
                         {
-                            Log.Warning(exceptionContext.Exception, "Error loading configuration from Consul");
+                            Log.Warning("Error loading configuration from Consul: {Message}", exceptionContext.Exception.Message);
                             exceptionContext.Ignore = true;
                         };
                     });
@@ -55,25 +57,57 @@ namespace CustomerService
             services.AddOptions();
             services.Configure<CustomerOptions>(Configuration.GetSection("customerOptions"));
 
-            services.AddMvc();
+            services.AddMvcCore().AddVersionedApiExplorer(
+                options =>
+                {
+                    options.GroupNameFormat = "'v'VVV";
 
-            services.AddSwaggerGen(c =>
+                    // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+                    // can also be used to control the format of the API version in route templates
+                    options.SubstituteApiVersionInUrl = true;
+                });
+
+            services.AddMvc();
+            services.AddApiVersioning(o => o.ReportApiVersions = true);
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("v1",
-                    new Info
-                    {
-                        Title = "My API - V1",
-                        Version = "v1"
-                    }
-                );
+                // resolve the IApiVersionDescriptionProvider service
+                // note: that we have to build a temporary service provider here because one has not been created yet
+                var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+
+                // add a swagger document for each discovered API version
+                // note: you might choose to skip or document deprecated API versions differently
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
+                }
+
+                // add a custom operation filter which sets default values
+                options.OperationFilter<SwaggerDefaultValues>();
 
                 var filePath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "CustomerService.xml");
-                c.IncludeXmlComments(filePath);
+                options.IncludeXmlComments(filePath);
             });
+        }
+        
+        static Info CreateInfoForApiVersion(ApiVersionDescription description)
+        {
+            var info = new Info()
+            {
+                Title = $"Sample API {description.ApiVersion}",
+                Version = description.ApiVersion.ToString(),
+            };
+
+            if (description.IsDeprecated)
+            {
+                info.Description += " This API version has been deprecated.";
+            }
+
+            return info;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime, IApiVersionDescriptionProvider provider)
         {
             applicationLifetime.ApplicationStopped.Register(() =>
             {
@@ -89,9 +123,13 @@ namespace CustomerService
             app.UseMvc();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            app.UseSwaggerUI(options =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                // build a swagger endpoint for each discovered API version
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
             });
         }
     }

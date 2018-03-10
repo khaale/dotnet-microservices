@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using CustomerService.Model;
+using CustomerService.Api.V1.Model;
 using CustomerService.Options;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Serilog;
 
-namespace CustomerService.Controllers
+namespace CustomerService.Api.V1.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0", Deprecated = true)]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class CustomerController : Controller
     {
         private static readonly ICollection<Customer> Customers = new List<Customer>()

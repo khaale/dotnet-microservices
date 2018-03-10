@@ -19,6 +19,7 @@
       "commandName": "Project",
       "commandLineArgs": "/CustomerOptions:Value3=\"from commandline args\"",
       "launchBrowser": true,
+      "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "CUSTOMEROPTIONS__VALUE2": "from environment variables"
