@@ -7,7 +7,8 @@ using Serilog;
 
 namespace CustomerService.Api.V1.Controllers
 {
-    [ApiVersion("1.0", Deprecated = true)]
+    [ApiVersion("1", Deprecated = true)]
+    [Route("api/[controller]")]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class CustomerController : Controller
     {
