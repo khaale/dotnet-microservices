@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using App.Metrics.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -45,6 +46,7 @@ namespace CustomerService
         public static IWebHost BuildWebHost(IConfiguration configuration) =>
             new WebHostBuilder()
                 .UseKestrel()
+                .UseMetrics()
                 .UseConfiguration(configuration)
                 .UseStartup<Startup>()
                 .UseSerilog()

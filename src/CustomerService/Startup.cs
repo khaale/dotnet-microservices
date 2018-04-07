@@ -5,6 +5,7 @@ using CustomerService.Core.Api;
 using CustomerService.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -73,7 +74,9 @@ namespace CustomerService
                     options.SubstituteApiVersionInUrl = true;
                 });
 
-            services.AddMvc();
+            var mvcBuilder = services.AddMvc();
+            //NOTE: MVC-specific AddMetrics should be called on IMvcBuilder, not IServiceCollection
+            mvcBuilder.AddMetrics();
             services.AddApiVersioning(o => o.ReportApiVersions = true);
             services.AddSwaggerGen(options =>
             {

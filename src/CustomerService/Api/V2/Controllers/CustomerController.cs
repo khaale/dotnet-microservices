@@ -8,7 +8,7 @@ using Serilog;
 namespace CustomerService.Api.V2.Controllers
 {
     [ApiVersion("2")]
-    [Route("api/[controller]")]
+    //[Route("api/[controller]")]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class CustomerController : Controller
     {
@@ -35,11 +35,6 @@ namespace CustomerService.Api.V2.Controllers
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult Get()
         {
-            Log.Information("Options: {OptionKey} = {OptionValue}", nameof(_options.Value1), _options.Value1);
-            Log.Information("Options: {OptionKey} = {OptionValue}", nameof(_options.Value2), _options.Value2);
-            Log.Information("Options: {OptionKey} = {OptionValue}", nameof(_options.Value3), _options.Value3);
-            Log.Information("Options: {OptionKey} = {OptionValue}", nameof(_options.Value4), _options.Value4);
-
             return Ok(Customers);
         }
     }
