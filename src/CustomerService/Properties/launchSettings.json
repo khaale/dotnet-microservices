@@ -21,6 +21,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
+        "NO_CONSUL": "true",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "CUSTOMEROPTIONS__VALUE2": "from environment variables"
       },

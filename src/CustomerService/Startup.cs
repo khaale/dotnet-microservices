@@ -17,10 +17,18 @@ namespace CustomerService
 {
     public class Startup
     {
-        // TODO: Try avoid public exposing
-        private readonly CancellationTokenSource ConsulCts = new CancellationTokenSource();
+        private readonly CancellationTokenSource _consulCts = new CancellationTokenSource();
         
         public Startup(IConfiguration configuration)
+        {
+            var noConsul = configuration.GetValue<bool>("NO_CONSUL", false);
+
+            Configuration = noConsul 
+                ? configuration 
+                : BuildDynamicConfiguration(configuration);
+        }
+
+        private IConfigurationRoot BuildDynamicConfiguration(IConfiguration configuration)
         {
             // prepare configuration that will be used for serving web requests
             var builder = new ConfigurationBuilder()
@@ -30,23 +38,21 @@ namespace CustomerService
                 // currently only works with a single Consul KV value, which must contain all the configuration as json
                 .AddConsul(
                     "customer-service",
-                    ConsulCts.Token,
+                    _consulCts.Token,
                     options =>
                     {
-                        options.ConsulConfigurationOptions = cco =>
-                        {
-                            cco.Address = new Uri("http://consul:8500");
-                        };
+                        options.ConsulConfigurationOptions = cco => { cco.Address = new Uri("http://consul:8500"); };
                         options.Optional = true;
                         options.ReloadOnChange = true;
                         options.OnLoadException = exceptionContext =>
                         {
-                            Log.Warning("Error loading configuration from Consul: {Message}", exceptionContext.Exception.Message);
+                            Log.Warning("Error loading configuration from Consul: {Message}",
+                                exceptionContext.Exception.Message);
                             exceptionContext.Ignore = true;
                         };
                     });
 
-            Configuration = builder.Build();
+            return builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -112,7 +118,7 @@ namespace CustomerService
             applicationLifetime.ApplicationStopped.Register(() =>
             {
                 Log.Information("Cancelling Consul requests and watches..");
-                ConsulCts.Cancel();
+                _consulCts.Cancel();
             });
 
             if (env.IsDevelopment())
